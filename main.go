@@ -31,6 +31,17 @@ func isAVideoFile(extension string) bool {
 	return false
 }
 
+func removeCharacters(input string, characters string) string {
+	filter := func(r rune) rune {
+	if strings.IndexRune(characters, r) < 0 {
+		return r
+	}
+		return -1
+	}
+	return strings.Map(filter, input)
+}
+
+
 // readDir calls an ls on the parameter path and call the functions for each file
 func readDir(directoryPath string) {
 	files, err := ioutil.ReadDir(directoryPath)
@@ -55,7 +66,7 @@ func readDir(directoryPath string) {
 				// check for new show name and id only when the filename is different
 				id, title = getShowID(name)
 				if id == 0 || title == "" {
-					fmt.Fprintf(os.Stderr, "Cannot find episode ID or Title, skippung file.")
+					fmt.Fprintf(os.Stderr, "Cannot find episode ID or Title, Skipping file.")
 					continue
 				}
 				formerName = name
@@ -65,7 +76,7 @@ func readDir(directoryPath string) {
 				fmt.Fprintf(os.Stderr, "Can't find episode on the API. Skipping file.\n")
 				continue
 			}
-			formated := fmt.Sprintf("%s - S%02dE%02d - %s%s", title, episode.Season, episode.Number, episode.Name, filepath.Ext(f.Name()))
+			formated := fmt.Sprintf("%s - S%02dE%02d - %s%s", title, episode.Season, episode.Number, removeCharacters(episode.Name, "/<>:\"\\|?*"), filepath.Ext(f.Name()))
 			fmt.Println("The old name was:    ", f.Name())
 			fmt.Println("The new name will be:", formated)
 			filepath.Dir(directoryPath)
